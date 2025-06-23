@@ -1,3 +1,6 @@
+## membuat user FreeIPA lebih dari satu ##
+
+
 ### create userlist.csv ####
 # -hermanto@ .....
 # -vernandos@.....
