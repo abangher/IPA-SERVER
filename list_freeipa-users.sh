@@ -1,25 +1,35 @@
 ## list_freeipa_users.sh 
 ## ./list_freeipa_user.sh
 
-ipa user-find --all --sizelimit=0 | \
-awk '
+ipa user-find --all --sizelimit=0 | awk '
 BEGIN {
-  print "UserLogin\tFirstName\tLastName\tStatus\tUID"
+  format="| %-18s | %-12s | %-12s | %-8s | %-10s |\n"
+  line="|--------------------|--------------|--------------|----------|------------|"
+  print line
+  printf format, "UserLogin", "FirstName", "LastName", "Status", "UID"
+  print line
+  count=0
 }
 /User login:/ {login=$3}
-/Full name:/ {fullname=$3; for(i=4;i<=NF;i++) fullname=fullname " " $i}
+/Full name:/ {
+  fullname=$3
+  for(i=4;i<=NF;i++) fullname=fullname " " $i
+}
 /Last name:/ {lastname=$3}
-/UID:/ {uid=$2; 
-  # Ambil first name dari fullname (kata pertama)
+/UID:/ {
+  uid=$2
   split(fullname, arr, " ")
   firstname=arr[1]
-  # Status tidak ada, default enabled
   status="enabled"
-  print login "\t" firstname "\t" lastname "\t" status "\t" uid
-  # reset variabel supaya gak salah di user berikutnya
-  login=""; firstname=""; lastname=""; fullname=""; status=""; uid=""
+  printf format, login, firstname, lastname, status, uid
+  count++
+  login=""; firstname=""; lastname=""; fullname=""; uid=""
 }
-' | column -t
+END {
+  print line
+  printf("| Total Users: %-55d |\n", count)
+  print line
+}'
 
 
 
